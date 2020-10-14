@@ -1,1 +1,1 @@
-# IFT3395_Kaggle
+# IFT3395 - Classification dárticles
