@@ -1,1 +1,1 @@
-# IFT3395 - Classification dárticles
+# IFT3395 - Classification d'articles
