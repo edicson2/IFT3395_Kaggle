@@ -13,15 +13,12 @@ def pd_translate(df):
         Abstract='¿'.join(df['Abstract'].tolist()).translate(transtab).split('¿')
     )
 
-# Count the number of words in a list and erase the ones that are in the another list
-def count_and_erase_words(lst, common_list):
+# Erase the words that are in the other list
+def erase_common_words(lst, common_list):
 
-    # Count the ocurrence of each word
     word_count = {}
     for elem in lst:
-        if elem in word_count:
-            word_count[elem] += 1
-        else:
+        if elem not in word_count:
             word_count[elem] = 1
 
     # Delete the 'common' words from the list
@@ -29,11 +26,6 @@ def count_and_erase_words(lst, common_list):
         for item in common_list:
             if item in word_count:
                 word_count.pop(item, None)
-
-    # Calculate the probability for each word
-    #nom_elements = len(lst)
-    #for key in word_count:
-    #    word_count[key] = word_count[key] / nom_elements
     
     return list(word_count.keys())
 
@@ -54,43 +46,41 @@ def pre_traitement(df, common_words):
     df = df.assign(Abstract=df['Abstract'].str.split(' '))
 
     # add a column with the probability for every word
-    prob = []
+    new_abstracts = []
     for row in df['Abstract']:
-        prob.append(count_and_erase_words(row, common_words))
-    #df['probability'] = prob
-    df = df.assign(Abstract=prob)
+        new_abstracts.append(erase_common_words(row, common_words))
+    df = df.assign(Abstract=new_abstracts)
     
     return df
 
-
-def create_maps_by_category(data):
-    mots_par_category = {}
+def create__category_maps(data):
+    words_par_category = {}
     # Create an entry for each unique category
     for category in data['Category'].unique():
         df_cat = data.loc[data['Category'] == category]
-        total_mots_par_classe = []
+        total_class_words = []
         
         # Add the word to a list for the category
         for row in df_cat['Abstract']:
-            total_mots_par_classe += row
+            total_class_words += row
         
         # Count the number of times a word is repeated in a category
         words_by_class = {}
-        for (i, elem) in enumerate(total_mots_par_classe):
+        for (i, elem) in enumerate(words_par_category):
             if elem in words_by_class:
                 words_by_class[elem] += 1
             else:
                 words_by_class[elem] = 1
-        mots_par_category[category] = words_by_class
+        words_par_category[category] = words_by_class
         
-    return mots_par_category
+    return words_par_category
 
-
-def taille_vocabulaire(mots_par_category):
+def taille_vocabulaire(words_par_category):
     total_size = 0
-    for category in mots_par_category.items():
+    for category in words_par_category.items():
         total_size += len(category[1])
     return total_size
+
 
 
 df= pd.read_csv("train.csv")
