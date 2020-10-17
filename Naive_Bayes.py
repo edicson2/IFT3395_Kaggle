@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import pandas as pd
 from scipy import sparse
@@ -14,7 +16,7 @@ def pd_translate(df):
     )
 
 # Erase the words that are in the other list
-def erase_common_words(lst, common_list):
+def count_and_erase_words(lst, common_list):
 
     word_count = {}
     for elem in lst:
@@ -46,14 +48,15 @@ def pre_traitement(df, common_words):
     df = df.assign(Abstract=df['Abstract'].str.split(' '))
 
     # add a column with the probability for every word
-    new_abstracts = []
+    prob = []
     for row in df['Abstract']:
-        new_abstracts.append(erase_common_words(row, common_words))
-    df = df.assign(Abstract=new_abstracts)
+        prob.append(count_and_erase_words(row, common_words))
+    #df['probability'] = prob
+    df = df.assign(Abstract=prob)
     
     return df
 
-def create__category_maps(data):
+def create_category_maps(data):
     words_par_category = {}
     # Create an entry for each unique category
     for category in data['Category'].unique():
@@ -66,7 +69,7 @@ def create__category_maps(data):
         
         # Count the number of times a word is repeated in a category
         words_by_class = {}
-        for (i, elem) in enumerate(words_par_category):
+        for (i, elem) in enumerate(total_class_words):
             if elem in words_by_class:
                 words_by_class[elem] += 1
             else:
@@ -75,9 +78,9 @@ def create__category_maps(data):
         
     return words_par_category
 
-def taille_vocabulaire(words_par_category):
+def taille_vocabulaire(mots_par_category):
     total_size = 0
-    for category in words_par_category.items():
+    for category in mots_par_category.items():
         total_size += len(category[1])
     return total_size
 
@@ -87,3 +90,8 @@ df= pd.read_csv("train.csv")
 common_words = load_common_words('common_english_words.txt')
 unique_labels = df['Category'].unique()
 data = pre_traitement(df, common_words)
+category_maps = create_category_maps(data)
+
+print(common_words)
+print(category_maps['astro-ph'])
+
