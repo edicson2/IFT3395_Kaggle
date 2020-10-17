@@ -63,6 +63,28 @@ def pre_traitement(df, common_words):
     return df
 
 
+def create_maps_by_category(data):
+    mots_par_category = {}
+    # Create an entry for each unique category
+    for category in data['Category'].unique():
+        df_cat = data.loc[data['Category'] == category]
+        total_mots_par_classe = []
+        
+        # Add the word to a list for the category
+        for row in df_cat['Abstract']:
+            total_mots_par_classe += row
+        
+        # Count the number of times a word is repeated in a category
+        words_by_class = {}
+        for (i, elem) in enumerate(total_mots_par_classe):
+            if elem in words_by_class:
+                words_by_class[elem] += 1
+            else:
+                words_by_class[elem] = 1
+        mots_par_category[category] = words_by_class
+        
+    return mots_par_category
+
 df= pd.read_csv("train.csv")
 common_words = load_common_words('common_english_words.txt')
 unique_labels = df['Category'].unique()
