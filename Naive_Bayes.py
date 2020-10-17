@@ -85,6 +85,14 @@ def create_maps_by_category(data):
         
     return mots_par_category
 
+
+def taille_vocabulaire(mots_par_category):
+    total_size = 0
+    for category in mots_par_category.items():
+        total_size += len(category[1])
+    return total_size
+
+
 df= pd.read_csv("train.csv")
 common_words = load_common_words('common_english_words.txt')
 unique_labels = df['Category'].unique()
