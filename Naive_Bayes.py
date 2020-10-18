@@ -15,22 +15,6 @@ def pd_translate(df):
         Abstract='¿'.join(df['Abstract'].tolist()).translate(transtab).split('¿')
     )
 
-# Erase the words that are in the other list
-def count_and_erase_words(lst, common_list):
-
-    word_count = {}
-    for elem in lst:
-        if elem not in word_count:
-            word_count[elem] = 1
-
-    # Delete the 'common' words from the list
-    if common_list.size != 0:
-        for item in common_list:
-            if item in word_count:
-                word_count.pop(item, None)
-    
-    return list(word_count.keys())
-
 
 def load_common_words(file):
     common_words = pd.read_csv(file,header=None)
@@ -61,16 +45,18 @@ def pre_traitement(df, common_words):
 
     return df
 
+
 def create_category_maps(data):
     words_par_category = {}
     # Create an entry for each unique category
     for category in data['Category'].unique():
         df_cat = data.loc[data['Category'] == category]
-        total_class_words = []
+        
+        total_class_words = np.array([])
         
         # Add the word to a list for the category
         for row in df_cat['Abstract']:
-            total_class_words += row
+            total_class_words = np.concatenate((total_class_words, row), axis=None)
         
         # Count the number of times a word is repeated in a category
         words_by_class = {}
@@ -79,10 +65,13 @@ def create_category_maps(data):
                 words_by_class[elem] += 1
             else:
                 words_by_class[elem] = 1
+        
         words_par_category[category] = words_by_class
         
     return words_par_category
 
+
+# Return the size of the vocabulary
 def taille_vocabulaire(mots_par_category):
     total_size = 0
     for category in mots_par_category.items():
