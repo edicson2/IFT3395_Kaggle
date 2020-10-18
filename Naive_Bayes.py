@@ -47,13 +47,18 @@ def pre_traitement(df, common_words):
     # Split each phrase in words
     df = df.assign(Abstract=df['Abstract'].str.split(' '))
 
-    # add a column with the probability for every word
-    prob = []
-    for row in df['Abstract']:
-        prob.append(count_and_erase_words(row, common_words))
-    #df['probability'] = prob
-    df = df.assign(Abstract=prob)
-    
+    abstracts = []
+
+    for article in df['Abstract'] :
+        article = np.array(article)
+        index = []
+        for common_word in common_words :
+            index = np.where(article == common_word)
+            article = np.delete(article, index)
+        abstracts.append(article)
+
+    df = df.assign(Abstract=list(abstracts))
+
     return df
 
 def create_category_maps(data):
@@ -92,6 +97,12 @@ unique_labels = df['Category'].unique()
 data = pre_traitement(df, common_words)
 category_maps = create_category_maps(data)
 
-print(common_words)
-print(category_maps['astro-ph'])
+#print(common_words)
+#print(category_maps['astro-ph'])
 
+def remove_common_words(df, common_list) :
+    for row in df['Abstract'] :
+        print(type(row))
+
+print(data)
+#remove_common_words(df, [0,1])
